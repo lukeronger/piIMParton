@@ -83,7 +83,10 @@ double piIMParton::getPDF(int Iparton, double x, double Q2) const
                 	return 0;
         	}
 	}
-
+	else{
+		cout<<"!!Unknown hadron."<<endl;
+		return 0;
+	}
 }
 
 //the constructor and initialization
