@@ -14,43 +14,82 @@ void piIMParton::setDataSet(int dataset)
         if(dataset==1)
         {
                 grid = gridA;
+		hadronID = 211;
+		dataSetNO = dataset;
                 cout<<"    Using data set A."<<endl;
         }
         else if(dataset==2)
         {
                 grid = gridB;
+		hadronID = 211;
+		dataSetNO = dataset;
                 cout<<"    Using data set B."<<endl;
+        }
+        else if(dataset==211)
+        {
+                grid = gridPion;
+		hadronID = 211;
+		dataSetNO = dataset;
+                cout<<"    Using data set of the pion from the global fit."<<endl;
+        }
+        else if(dataset==321)
+        {
+                grid = gridKaon;
+		hadronID = 321;
+		dataSetNO = dataset;
+                cout<<"    Using data set of the kaon from the global fit."<<endl;
         }
         else
         {
-                cout<<"!!->Unknown data set."<<endl;
-                cout<<"!!->Data set should be 1 or 2"<<endl;
+                cout<<"!!->Unknown data set "<<dataset<<"."<<endl;
+                cout<<"!!->Data set should be 211, or 321, or 1, or 2"<<endl;
         }
 }
 
 //return the parton distributions of different kinds at x and Q^2
+//Here we use the numbering scheme of Monte Carlo suggested by particle data group
 double piIMParton::getPDF(int Iparton, double x, double Q2) const
 {
-        if(Iparton==-4 || Iparton==4)return getXCSea(x,Q2)/2.0/x;
-        else if(Iparton==-3 || Iparton==3)return getXSSea(x,Q2)/2.0/x;
-        else if(Iparton==-2)return getXDSea(x,Q2)/2.0/x;
-        else if(Iparton==2)return getXDSea(x,Q2)/2.0/x+getXDV(x,Q2)/x;
-        else if(Iparton==-1)return getXUSea(x,Q2)/2.0/x;
-        else if(Iparton==1)return getXUSea(x,Q2)/2.0/x+getXUV(x,Q2)/x;
-        else if(Iparton==0)return getXGluon(x,Q2)/x;
-        else
-        {
-                cout<<"!!->Unknown Iparton type."<<" (Iparton = "<<Iparton<<"?)"<<endl;
-                cout<<"!!->Iparton should be one of these: [-4,-3, ... 3, 4]"<<endl;
-                return 0;
-        }
+	if(hadronID==211){
+		if(Iparton==1)return getPDFraw(-2, x, Q2);
+		else if(Iparton==-1)return getPDFraw(2, x, Q2);
+		else if(Iparton==2)return getPDFraw(1, x, Q2);
+		else if(Iparton==-2)return getPDFraw(-1, x, Q2);
+		else if(Iparton==3 || Iparton==-3)return getPDFraw(Iparton, x, Q2);
+		else if(Iparton==4 || Iparton==-4)return getPDFraw(Iparton, x, Q2);
+		else if(Iparton==21)return getPDFraw(0, x, Q2);
+		else 
+        	{
+                	cout<<"!!->Unknown Iparton type."<<" (Iparton = "<<Iparton<<"?)"<<endl;
+                	cout<<"!!->Iparton should be one of these: [-4,-3, ... 3, 4, 21]"<<endl;
+                	cout<<"!!->Using PDG MC numbering scheme."<<endl;
+                	return 0;
+        	}
+	}
+	else if(hadronID==321){
+		if(Iparton==1)return getPDFraw(-2, x, Q2);
+		else if(Iparton==-1)return getPDFraw(-2, x, Q2);
+		else if(Iparton==2)return getPDFraw(1, x, Q2);
+		else if(Iparton==-2)return getPDFraw(-1, x, Q2);
+		else if(Iparton==3)return getPDFraw(-3, x, Q2);
+		else if(Iparton==-3)return getPDFraw(2, x, Q2) - getPDFraw(-2, x, Q2) + getPDFraw(-3, x, Q2);
+		else if(Iparton==4 || Iparton==-4)return getPDFraw(Iparton, x, Q2);
+		else if(Iparton==21)return getPDFraw(0, x, Q2);
+		else 
+        	{
+                	cout<<"!!->Unknown Iparton type."<<" (Iparton = "<<Iparton<<"?)"<<endl;
+                	cout<<"!!->Iparton should be one of these: [-4,-3, ... 3, 4, 21]"<<endl;
+                	cout<<"!!->Using PDG MC numbering scheme."<<endl;
+                	return 0;
+        	}
+	}
 
 }
 
 //the constructor and initialization
 piIMParton::piIMParton()
 {
-	cout<<"    piIMParton version - 1.0, for pion parton distribution functions"<<endl;
+	cout<<"    piIMParton version - 1.0, for pion & kaon parton distribution functions"<<endl;
 	char filename[50];
 	ifstream datain;
 	double x, Q2;
@@ -62,7 +101,37 @@ piIMParton::piIMParton()
 	lnQ2step=log(2.0);
 	gridA = new double[Q2Max*xMax*flavorMax];
 	gridB = new double[Q2Max*xMax*flavorMax];
+	gridPion = new double[Q2Max*xMax*flavorMax];
+	gridKaon = new double[Q2Max*xMax*flavorMax];
 	//read grid data for interpolation
+	//reading data set of the pion from the global fit
+	sprintf(filename,"grid_pion_global_fit.dat");
+	cout<<"    Loading "<<filename<<endl;
+	datain.open(filename);
+	if(!datain.good())cout<<"!!->Error while opening "<<filename<<"!\n!!->grid data file not exist?"<<endl;
+	else
+	for(i=0;i<Q2Max;i++)
+	{
+		for(j=0;j<xMax;j++)
+		{
+			datain>>Q2>>x>>(*(gridPion+(xMax*i+j)*7))>>(*(gridPion+(xMax*i+j)*7+1))>>(*(gridPion+(xMax*i+j)*7+2))>>(*(gridPion+(xMax*i+j)*7+3))>>(*(gridPion+(xMax*i+j)*7+4))>>(*(gridPion+(xMax*i+j)*7+5))>>(*(gridPion+(xMax*i+j)*7+6));
+		}
+	}
+	datain.close();
+	//reading data set of the kaon from the global fit
+	sprintf(filename,"grid_kaon_global_fit.dat");
+	cout<<"    Loading "<<filename<<endl;
+	datain.open(filename);
+	if(!datain.good())cout<<"!!->Error while opening "<<filename<<"!\n!!->grid data file not exist?"<<endl;
+	else
+	for(i=0;i<Q2Max;i++)
+	{
+		for(j=0;j<xMax;j++)
+		{
+			datain>>Q2>>x>>(*(gridKaon+(xMax*i+j)*7))>>(*(gridKaon+(xMax*i+j)*7+1))>>(*(gridKaon+(xMax*i+j)*7+2))>>(*(gridKaon+(xMax*i+j)*7+3))>>(*(gridKaon+(xMax*i+j)*7+4))>>(*(gridKaon+(xMax*i+j)*7+5))>>(*(gridKaon+(xMax*i+j)*7+6));
+		}
+	}
+	datain.close();
 	//reading data set A
 	sprintf(filename,"grid_pion_SetA.dat");
 	cout<<"    Loading "<<filename<<endl;
@@ -91,8 +160,11 @@ piIMParton::piIMParton()
                 }
         }
         datain.close();
-	//the default is set B
-	grid = gridB;
+	//the default is set of the pion from the global fit
+	grid = gridPion;
+
+	hadronID = 211;
+	dataSetNO = 211;
 
 }
 
@@ -101,6 +173,8 @@ piIMParton::~piIMParton(void)
 {
 	delete[] gridA;
         delete[] gridB;
+        delete[] gridPion;
+        delete[] gridKaon;
 
 }
 
@@ -251,5 +325,23 @@ double piIMParton::fitLinear(double x, double* px, double* pf) const
 }
 
 
+//return the parton distributions of different kinds at x and Q^2
+double piIMParton::getPDFraw(int Iparton, double x, double Q2) const
+{
+        if(Iparton==-4 || Iparton==4)return getXCSea(x,Q2)/2.0/x;
+        else if(Iparton==-3 || Iparton==3)return getXSSea(x,Q2)/2.0/x;
+        else if(Iparton==-2)return getXDSea(x,Q2)/2.0/x;
+        else if(Iparton==2)return getXDSea(x,Q2)/2.0/x+getXDV(x,Q2)/x;
+        else if(Iparton==-1)return getXUSea(x,Q2)/2.0/x;
+        else if(Iparton==1)return getXUSea(x,Q2)/2.0/x+getXUV(x,Q2)/x;
+        else if(Iparton==0)return getXGluon(x,Q2)/x;
+        else
+        {
+                cout<<"!!->Unknown Iparton type."<<" (Iparton = "<<Iparton<<"?)"<<endl;
+                cout<<"!!->Iparton should be one of these: [-4,-3, ... 3, 4]"<<endl;
+                return 0;
+        }
+
+}
 
 

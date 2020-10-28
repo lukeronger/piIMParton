@@ -24,13 +24,19 @@ private:
 	double lnxstep;           //step length of ln(x) for the grid data
 	double lnQ2step;          //step length of ln(Q^2) for the grid data
 
+	int hadronID;
+	int dataSetNO;
+
         double * grid;            //grid data array
         double * gridA;           //data array storing data set A
         double * gridB;           //data array storing data set B
+        double * gridPion;           //data array storing data set of the pion from the global fit
+        double * gridKaon;           //data array storing data set of the kaon from the global fit
 
 	double fitLinear(double x, double* px, double* pf) const;       //linear interpolation function
 	double fitQuadratic(double x, double* px, double* pf) const;    //quadratic interpolation function
         double getPDFType(int, double x, double Q2) const;
+        double getPDFraw(int, double x, double Q2) const;
   
 };
 
