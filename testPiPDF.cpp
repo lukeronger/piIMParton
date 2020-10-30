@@ -33,9 +33,9 @@ void testPiPDF(){
 		double xpi = exp( log(1e-3) + i*step );
 		///get xuv at Q2 = 10 GeV2.
 		gxuv->SetPoint(i,  xpi,  xpi*(pipdf.getPDF(2, xpi, 10.0) - pipdf.getPDF(-2, xpi, 10.0)) );
-		///get xu at Q2 = 10 GeV2.
+		///get xd at Q2 = 10 GeV2.
 		gxd->SetPoint(i,  xpi,  xpi*pipdf.getPDF(1, xpi, 10.0) );
-		///get xubar at Q2 = 10 GeV2.
+		///get xdbar at Q2 = 10 GeV2.
 		gxdbar->SetPoint(i,  xpi,  xpi*pipdf.getPDF(-1, xpi, 10.0) );
 		///get xgluon at Q2 = 10 GeV2.
 		gxgluon->SetPoint(i,  xpi,  xpi*pipdf.getPDF(21, xpi, 10.0) );
@@ -75,11 +75,11 @@ void testPiPDF(){
 		double xpi = exp( log(1e-3) + i*step );
 		///get xuv at Q2 = 10 GeV2.
 		gxuvKaon->SetPoint(i,  xpi,  xpi*(Kaonpdf.getPDF(2, xpi, 10.0) - Kaonpdf.getPDF(-2, xpi, 10.0)) );
-		///get xu at Q2 = 10 GeV2.
+		///get xsbar at Q2 = 10 GeV2.
 		gxsbarKaon->SetPoint(i,  xpi,  xpi*Kaonpdf.getPDF(-3, xpi, 10.0) );
-		///get xubar at Q2 = 10 GeV2.
+		///get xdbar at Q2 = 10 GeV2.
 		gxdbarKaon->SetPoint(i,  xpi,  xpi*Kaonpdf.getPDF(-1, xpi, 10.0) );
-		///get xgluon at Q2 = 10 GeV2.
+		///get xc at Q2 = 10 GeV2.
 		gxcharmKaon->SetPoint(i,  xpi,  xpi*Kaonpdf.getPDF(4, xpi, 10.0) );
 	}
 
@@ -98,8 +98,6 @@ void testPiPDF(){
 	c2->cd(4);
 	gxcharmKaon->Draw("a l");
 	gxcharmKaon->SetTitle("xcharm of K^{+}");
-
-
 
 
 
