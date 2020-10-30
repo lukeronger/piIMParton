@@ -1,3 +1,6 @@
+// This is a ROOT script to demonstrate
+// how to get the pion and the kaon parton distribution functions.
+
 #include"piIMParton.h"
 
 #include"piIMParton.cpp"
